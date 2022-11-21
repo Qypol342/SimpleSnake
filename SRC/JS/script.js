@@ -1,0 +1,1 @@
+const canGame = document.querySelector(canvas)
