@@ -10,7 +10,7 @@ const MaxY = 600;
 const MaxX = 600;
 const speed = 7;
 const tileCount=20;
-const tileSize=MaxX/tileCount;
+const tileSize=10//MaxX/tileCount;
 
 let SnakeX =1;
 let SnakeY = 1;
@@ -56,7 +56,7 @@ function checkCollison(){
     apples.forEach(e => {
         if (e.x == SnakeX && e.y == SnakeY ){
             apples.pop(e)
-            console.log("food eated")
+            console.log("food")
             Score ++;
             apples.push(new Apple(Math.floor(Math.random()*tileCount),Math.floor(Math.random()*tileCount)))
         }
@@ -88,7 +88,7 @@ drawSnake()
 
 
 function keyDown(event){
-    console.log("key down")
+
     if(event.keyCode==38){
         if(VelY == 1){return}
         VelY=-1;
