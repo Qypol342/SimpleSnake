@@ -17,6 +17,15 @@ let SnakeY = 1;
 let VelX = 1;
 let VelY = 0;
 
+const Parts = [];
+let snakeLenght = 2;
+class snakeParts {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+}
+
 class Apple {
   constructor(x, y) {
     this.x = x;
@@ -26,7 +35,7 @@ class Apple {
 
 let lost = false;
 let apples = [new Apple(5, 5)];
-let Score = 0;
+let score = 0;
 
 // lien vers tuto https://www.section.io/engineering-education/how-to-build-a-snake-game-with-javascript/
 function clearScreen() {
@@ -34,14 +43,24 @@ function clearScreen() {
   ctx.fillRect(0, 0, MaxX, MaxY);
 }
 
+function drawScore() {
+  ctx.fillStyle = "white";
+  ctx.font = "17px Arial";
+  ctx.fillText("Score: " + score, canGame.clientWidth - 75, 24);
+}
+
 function drawSnake() {
   ctx.fillStyle = "orange";
-  ctx.fillRect(
-    SnakeX * tileCount,
-    SnakeY * tileCount,
-    2 * tileSize,
-    2 * tileSize
-  );
+  for (let i = 0; i < Parts.length; i++) {
+    let part = Parts[i];
+    ctx.fillRect(
+      SnakeX * tileCount,
+      SnakeY * tileCount,
+      2 * tileSize,
+      2 * tileSize
+    );
+  }
+  Parts.push(new snakeParts(SnakeX, SnakeY));
 }
 
 function drawFood() {
@@ -58,7 +77,7 @@ function checkCollison() {
     if (e.x == SnakeX && e.y == SnakeY) {
       apples.pop(e);
       console.log("food");
-      Score++;
+      score++;
       apples.push(
         new Apple(
           Math.floor(Math.random() * tileCount),
@@ -72,7 +91,12 @@ function checkCollison() {
 }
 
 function checkOutside() {
-  if (SnakeX < 0 || SnakeX > MaxX || SnakeY < 0 || SnakeY > MaxY) {
+  if (
+    SnakeX < 0 ||
+    SnakeX > canGame.clientWidth ||
+    SnakeY < 0 ||
+    SnakeY > canGame.clientWidth
+  ) {
     console.log("out");
     return true;
   }
@@ -80,7 +104,7 @@ function checkOutside() {
 
 function run() {
   if (lost) {
-    return;
+    Location.reload();
   }
 
   SnakeX += VelX;
@@ -93,6 +117,7 @@ function run() {
   console.log(lost);
   drawFood();
   drawSnake();
+  drawScore();
   setTimeout(run, 1000 / speed);
 }
 
