@@ -31,7 +31,7 @@ let Score =0
 
 
 
-
+// lien vers tuto https://www.section.io/engineering-education/how-to-build-a-snake-game-with-javascript/
 function clearScreen(){
     ctx.fillStyle="green"
     ctx.fillRect(0,0,MaxX, MaxY)
