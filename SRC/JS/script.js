@@ -22,7 +22,7 @@ document.addEventListener("keyup", keyUp);
 
 const MaxY = 600;
 const MaxX = 600;
-const speed = 7;
+const speed = 10;
 const tileCount = 20;
 const tileSize = 10; //MaxX/tileCount;
 
@@ -78,8 +78,12 @@ function drawScore() {
 }
 
 function drawSnake() {
-  ctx.fillStyle = "orange";
   for (let i = 0; i < Parts.length; i++) {
+    if (i == 0) {
+      ctx.fillStyle = "black";
+    } else {
+      ctx.fillStyle = "orange";
+    }
     let part = Parts[i];
     ctx.fillRect(
       part.x * tileCount,
@@ -116,13 +120,10 @@ function addSnakePart() {
     );
   }
 }
-function checkCollison() {
-  // food
-
+function checkSnakeEat() {
   apples.forEach((e) => {
     if (e.x == Parts[0].x && e.y == Parts[0].y) {
       apples.pop(e);
-      console.log("food");
       score++;
       addSnakePart();
       apples.push(
@@ -133,8 +134,6 @@ function checkCollison() {
       );
     }
   });
-
-  //eadge
 }
 
 function checkOutside() {
@@ -144,34 +143,42 @@ function checkOutside() {
     Parts[0].y < 0 ||
     Parts[0].y > tileCount + tileSize
   ) {
-    console.log("out");
     return true;
   }
 }
 
-function moveSnake() {
-  for (let i = 0; i < Parts.length; i++) {
-    Parts[i].x += VelX;
-    Parts[i].y += VelY;
+function checkCollisionHimself() {
+  for (let i = 1; i < Parts.length; i++) {
+    if (Parts[0].x == Parts[i].x && Parts[0].y == Parts[i].y) {
+      return true;
+    }
   }
+}
+
+
+function moveSnake() {
+  for (let i = Parts.length - 1; i > 0; i--) {
+    Parts[i].x = Parts[i - 1].x;
+    Parts[i].y = Parts[i - 1].y;
+  }
+  Parts[0].x += VelX;
+  Parts[0].y += VelY;
 }
 
 function run(level=1) {
   MODE = "GAME"
-  if (lost) {
+  if (checkOutside() || checkCollisionHimself()) {
+
     location.reload();
   }
-  console.log(VelX, VelY);
   moveSnake();
 
   clearScreen();
-  checkCollison();
+  checkSnakeEat();
 
-  lost = checkOutside();
   drawFood();
   drawSnake();
   drawScore();
-  console.log(Parts);
   setTimeout(run, 1000 / speed);
 }
 
