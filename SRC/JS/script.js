@@ -12,6 +12,13 @@ class Apple {
   }
 }
 
+class Wall{
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+}
+
 const canGame = document.querySelector("canvas");
 const ctx = canGame.getContext("2d");
 const startBtn = document.querySelector("#start");
@@ -32,15 +39,23 @@ let SnakeY = 1;
 let VelX = 1;
 let VelY = 0;
 
-const Parts = [new snakeParts(SnakeX, SnakeY)];
+const parts = [new snakeParts(SnakeX, SnakeY)];
 
 let lost = false;
-let apples = [new Apple(5, 5)];
+let apples = [];
+let walls = [];
 let score = 0;
 
 let MODE = "MENU"
 let LEVEL_SEL = 0
 const LEVEL_LIST = ["1","2"]
+let delai = 0;
+
+async function loadLevel(id){
+  let reponse = await fetch('./SRC/LEVEL/'+id+'.json')
+  let json = await reponse.json()
+  return json;
+}
 
 function drawMenu(){
   clearScreen()
@@ -65,7 +80,6 @@ function drawLevel(){
   
 }
 
-// lien vers tuto https://www.section.io/engineering-education/how-to-build-a-snake-game-with-javascript/
 function clearScreen() {
   ctx.fillStyle = "green";
   ctx.fillRect(0, 0, MaxX, MaxY);
@@ -78,13 +92,14 @@ function drawScore() {
 }
 
 function drawSnake() {
-  for (let i = 0; i < Parts.length; i++) {
+  //console.log(parts)
+  for (let i = 0; i < parts.length; i++) {
     if (i == 0) {
-      ctx.fillStyle = "black";
+      ctx.fillStyle = "orangered";
     } else {
       ctx.fillStyle = "orange";
     }
-    let part = Parts[i];
+    let part = parts[i];
     ctx.fillRect(
       part.x * tileCount,
       part.y * tileCount,
@@ -101,28 +116,37 @@ function drawFood() {
   });
 }
 
+function drawWall() {
+  //console.log("walss",walls)
+  walls.forEach((e) => {
+    //console.log(e.x,e.y)
+    ctx.fillStyle = "grey";
+    ctx.fillRect(e.x * tileCount, e.y * tileCount, 2 * tileSize, 2 * tileSize);
+  });
+}
+
 function addSnakePart() {
   if (VelX == 1) {
-    Parts.push(
-      new snakeParts(Parts[Parts.length - 1].x - 1, Parts[Parts.length - 1].y)
+    parts .push(
+      new snakeParts(parts [parts .length - 1].x - 1, parts [parts .length - 1].y)
     );
   } else if (VelX == -1) {
-    Parts.push(
-      new snakeParts(Parts[Parts.length - 1].x + 1, Parts[Parts.length - 1].y)
+    parts .push(
+      new snakeParts(parts [parts .length - 1].x + 1, parts [parts .length - 1].y)
     );
   } else if (VelY == 1) {
-    Parts.push(
-      new snakeParts(Parts[Parts.length - 1].x, Parts[Parts.length - 1].y - 1)
+    parts .push(
+      new snakeParts(parts [parts .length - 1].x, parts [parts .length - 1].y - 1)
     );
   } else if (VelY == -1) {
-    Parts.push(
-      new snakeParts(Parts[Parts.length - 1].x, Parts[Parts.length - 1].y + 1)
+    parts .push(
+      new snakeParts(parts [parts .length - 1].x, parts [parts .length - 1].y + 1)
     );
   }
 }
 function checkSnakeEat() {
   apples.forEach((e) => {
-    if (e.x == Parts[0].x && e.y == Parts[0].y) {
+    if (e.x == parts [0].x && e.y == parts [0].y) {
       apples.pop(e);
       score++;
       addSnakePart();
@@ -138,18 +162,18 @@ function checkSnakeEat() {
 
 function checkOutside() {
   if (
-    Parts[0].x < 0 ||
-    Parts[0].x > tileCount + tileSize ||
-    Parts[0].y < 0 ||
-    Parts[0].y > tileCount + tileSize
+    parts [0].x < 0 ||
+    parts [0].x > tileCount + tileSize ||
+    parts [0].y < 0 ||
+    parts [0].y > tileCount + tileSize
   ) {
     return true;
   }
 }
 
 function checkCollisionHimself() {
-  for (let i = 1; i < Parts.length; i++) {
-    if (Parts[0].x == Parts[i].x && Parts[0].y == Parts[i].y) {
+  for (let i = 1; i < parts .length; i++) {
+    if (parts [0].x == parts [i].x && parts [0].y == parts [i].y) {
       return true;
     }
   }
@@ -157,16 +181,42 @@ function checkCollisionHimself() {
 
 
 function moveSnake() {
-  for (let i = Parts.length - 1; i > 0; i--) {
-    Parts[i].x = Parts[i - 1].x;
-    Parts[i].y = Parts[i - 1].y;
+  for (let i = parts .length - 1; i > 0; i--) {
+    parts [i].x = parts [i - 1].x;
+    parts [i].y = parts [i - 1].y;
   }
-  Parts[0].x += VelX;
-  Parts[0].y += VelY;
+  parts [0].x += VelX;
+  parts [0].y += VelY;
 }
 
-function run(level=1) {
+async function startGame(level){
   MODE = "GAME"
+  let lev = await loadLevel(level)
+
+  for (var i = lev["food"].length - 1; i >= 0; i--) {
+    apples.push(new Apple(lev["food"][i][0],lev["food"][i][1])) 
+  }
+  for (var i = lev["walls"].length - 1; i >= 0; i--) {
+    walls.push(new Wall(lev["walls"][i][0],lev["walls"][i][1])) 
+  }
+
+  for (var i = lev["snake"].length - 1; i >= 0; i--) {
+    
+    parts.push(new snakeParts(lev["snake"][i][0],lev["snake"][i][1])) 
+  }
+
+  delai = lev["delay"]
+
+  drawFood();
+  drawWall();
+  drawSnake();
+  drawScore();
+  setTimeout(run, delai);
+}
+
+function run() {
+  
+
   if (checkOutside() || checkCollisionHimself()) {
 
     location.reload();
@@ -177,6 +227,7 @@ function run(level=1) {
   checkSnakeEat();
 
   drawFood();
+  drawWall();
   drawSnake();
   drawScore();
   setTimeout(run, 1000 / speed);
@@ -190,7 +241,7 @@ function keyDown(event) {
       }
       VelY = -1;
       VelX = 0;
-    }
+    }else
 
     if (event.keyCode == 40) {
       if (VelY == -1) {
@@ -198,7 +249,7 @@ function keyDown(event) {
       }
       VelY = 1;
       VelX = 0;
-    }
+    }else
 
     if (event.keyCode == 37) {
       if (VelX == 1) {
@@ -206,7 +257,7 @@ function keyDown(event) {
       }
       VelY = 0;
       VelX = -1;
-    }
+    }else
     if (event.keyCode == 39) {
       if (VelX == -1) {
         return;
@@ -236,7 +287,7 @@ function keyUp(event){
   if (event.keyCode == 13) {
       MODE = "GAME"
       clearScreen();
-      run(LEVEL_SEL);
+      startGame(LEVEL_SEL+1);
     }}
     if (MODE == "MENU"){
     if (event.keyCode == 13) {
