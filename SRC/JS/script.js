@@ -19,6 +19,7 @@ let VelY = 0;
 
 const Parts = [];
 let snakeLenght = 2;
+
 class snakeParts {
   constructor(x, y) {
     this.x = x;
@@ -93,9 +94,9 @@ function checkCollison() {
 function checkOutside() {
   if (
     SnakeX < 0 ||
-    SnakeX > canGame.clientWidth ||
+    SnakeX > tileCount + tileSize ||
     SnakeY < 0 ||
-    SnakeY > canGame.clientWidth
+    SnakeY > tileCount + tileSize
   ) {
     console.log("out");
     return true;
@@ -104,7 +105,7 @@ function checkOutside() {
 
 function run() {
   if (lost) {
-    Location.reload();
+    location.reload();
   }
 
   SnakeX += VelX;
@@ -118,6 +119,8 @@ function run() {
   drawFood();
   drawSnake();
   drawScore();
+  console.log(snakeParts);
+  console.log(SnakeX, " ", SnakeY);
   setTimeout(run, 1000 / speed);
 }
 
