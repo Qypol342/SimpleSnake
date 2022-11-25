@@ -27,11 +27,18 @@ document.addEventListener("keydown", keyDown);
 document.addEventListener("keyup", keyUp);
 //document.addEventListener("click", run);
 
-const MaxY = 600;
-const MaxX = 600;
+let MaxY = 600;
+let MaxX = 600;
+
+
+
+canGame.width= MaxX;
+canGame.height= MaxY;
+
+
 const speed = 10;
-const tileCount = 20;
-const tileSize = 10; //MaxX/tileCount;
+let tileCount = 20;
+let tileSize = 10; //MaxX/tileCount;
 
 let SnakeX = 1;
 let SnakeY = 1;
@@ -39,7 +46,7 @@ let SnakeY = 1;
 let VelX = 1;
 let VelY = 0;
 
-const parts = [new snakeParts(SnakeX, SnakeY)];
+let parts = [];// new snakeParts(SnakeY,SnakeX)
 
 let lost = false;
 let apples = [];
@@ -59,7 +66,7 @@ async function loadLevel(id){
 
 function drawMenu(){
   clearScreen()
-  console.log("menu")
+
   ctx.fillStyle = "white";
   ctx.font = "17px Arial";
   ctx.fillText("Press Enter to select Level", 10, 20);
@@ -92,7 +99,7 @@ function drawScore() {
 }
 
 function drawSnake() {
-  //console.log(parts)
+  console.log(parts)
   for (let i = 0; i < parts.length; i++) {
     if (i == 0) {
       ctx.fillStyle = "orangered";
@@ -101,10 +108,10 @@ function drawSnake() {
     }
     let part = parts[i];
     ctx.fillRect(
-      part.x * tileCount,
-      part.y * tileCount,
-      2 * tileSize,
-      2 * tileSize
+      part.x*tileSize ,
+      part.y*tileSize ,
+      tileSize,
+      tileSize
     );
   }
 }
@@ -112,7 +119,7 @@ function drawSnake() {
 function drawFood() {
   apples.forEach((e) => {
     ctx.fillStyle = "red";
-    ctx.fillRect(e.x * tileCount, e.y * tileCount, 2 * tileSize, 2 * tileSize);
+    ctx.fillRect(e.x * tileSize, e.y * tileSize,  tileSize,  tileSize);
   });
 }
 
@@ -121,7 +128,7 @@ function drawWall() {
   walls.forEach((e) => {
     //console.log(e.x,e.y)
     ctx.fillStyle = "grey";
-    ctx.fillRect(e.x * tileCount, e.y * tileCount, 2 * tileSize, 2 * tileSize);
+    ctx.fillRect(e.x * tileSize, e.y * tileSize,  tileSize,  tileSize);
   });
 }
 
@@ -152,8 +159,8 @@ function checkSnakeEat() {
       addSnakePart();
       apples.push(
         new Apple(
-          Math.floor(Math.random() * tileCount),
-          Math.floor(Math.random() * tileCount)
+          Math.floor(Math.random() * (MaxX/tileSize)),
+          Math.floor(Math.random() * (MaxY/tileSize))
         )
       );
     }
@@ -161,19 +168,25 @@ function checkSnakeEat() {
 }
 
 function checkOutside() {
+  
   if (
     parts [0].x < 0 ||
-    parts [0].x > tileCount + tileSize ||
+    parts [0].x > (MaxX/tileSize)-1||
     parts [0].y < 0 ||
-    parts [0].y > tileCount + tileSize
+    parts [0].y >(MaxY/tileSize)-1
   ) {
+    console.log("colision eadge")
     return true;
   }
 }
 
 function checkCollisionHimself() {
+  
   for (let i = 1; i < parts .length; i++) {
-    if (parts [0].x == parts [i].x && parts [0].y == parts [i].y) {
+    if (parts[0].x == parts[i].x && parts[0].y == parts[i].y) {
+      console.log("colision self")
+      console.log(parts[0].x == parts[i].x , parts[0].y == parts[i].y,parts[0].x , parts[i].x, parts[0].y , parts[i].y)
+      console.log(parts)
       return true;
     }
   }
@@ -193,6 +206,16 @@ async function startGame(level){
   MODE = "GAME"
   let lev = await loadLevel(level)
 
+  VelX = 1;
+  VelY = 0;
+
+  parts = [];
+
+  lost = false;
+  apples = [];
+  walls = [];
+  score = 0;
+
   for (var i = lev["food"].length - 1; i >= 0; i--) {
     apples.push(new Apple(lev["food"][i][0],lev["food"][i][1])) 
   }
@@ -207,6 +230,16 @@ async function startGame(level){
 
   delai = lev["delay"]
 
+  tileCount = lev["dimensions"][0];
+  console.log("dim",lev)
+  canGame.width= tileSize*lev["dimensions"][0];
+  canGame.height= tileSize*lev["dimensions"][1];
+
+  MaxX= tileSize*lev["dimensions"][0];
+  MaxY= tileSize*lev["dimensions"][1];
+
+  console.log("parts beafore start",parts)
+  clearScreen();
   drawFood();
   drawWall();
   drawSnake();
@@ -215,13 +248,20 @@ async function startGame(level){
 }
 
 function run() {
+  console.log("run", parts)
   
+
+  moveSnake();
 
   if (checkOutside() || checkCollisionHimself()) {
 
-    location.reload();
-  }
-  moveSnake();
+    MODE = "MENU";
+    setTimeout(drawMenu, 5000);
+
+
+
+  }else{
+  
 
   clearScreen();
   checkSnakeEat();
@@ -231,6 +271,7 @@ function run() {
   drawSnake();
   drawScore();
   setTimeout(run, 1000 / speed);
+  }
 }
 
 function keyDown(event) {
