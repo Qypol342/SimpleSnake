@@ -242,7 +242,7 @@ async function startGame(level) {
 function run() {
   moveSnake();
 
-  if (checkOutside() || checkCollisionHimself()) {
+  if (checkOutside() || checkHimselfCollision()) {
     MODE = "MENU";
     console.log("noob");
     setTimeout(drawMenu, 5000);
