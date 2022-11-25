@@ -99,7 +99,7 @@ function drawScore() {
 }
 
 function drawSnake() {
-  console.log(parts)
+
   for (let i = 0; i < parts.length; i++) {
     if (i == 0) {
       ctx.fillStyle = "orangered";
@@ -175,7 +175,6 @@ function checkOutside() {
     parts [0].y < 0 ||
     parts [0].y >(MaxY/tileSize)-1
   ) {
-    console.log("colision eadge")
     return true;
   }
 }
@@ -184,9 +183,6 @@ function checkCollisionHimself() {
   
   for (let i = 1; i < parts .length; i++) {
     if (parts[0].x == parts[i].x && parts[0].y == parts[i].y) {
-      console.log("colision self")
-      console.log(parts[0].x == parts[i].x , parts[0].y == parts[i].y,parts[0].x , parts[i].x, parts[0].y , parts[i].y)
-      console.log(parts)
       return true;
     }
   }
@@ -195,11 +191,15 @@ function checkCollisionHimself() {
 
 function moveSnake() {
   for (let i = parts .length - 1; i > 0; i--) {
+
     parts [i].x = parts [i - 1].x;
     parts [i].y = parts [i - 1].y;
+
   }
+
   parts [0].x += VelX;
   parts [0].y += VelY;
+
 }
 
 async function startGame(level){
@@ -222,23 +222,24 @@ async function startGame(level){
   for (var i = lev["walls"].length - 1; i >= 0; i--) {
     walls.push(new Wall(lev["walls"][i][0],lev["walls"][i][1])) 
   }
-
-  for (var i = lev["snake"].length - 1; i >= 0; i--) {
+  
+  for (var i = 0 ; i < lev["snake"].length; i++) {
     
     parts.push(new snakeParts(lev["snake"][i][0],lev["snake"][i][1])) 
+
   }
 
   delai = lev["delay"]
 
   tileCount = lev["dimensions"][0];
-  console.log("dim",lev)
+
   canGame.width= tileSize*lev["dimensions"][0];
   canGame.height= tileSize*lev["dimensions"][1];
 
   MaxX= tileSize*lev["dimensions"][0];
   MaxY= tileSize*lev["dimensions"][1];
 
-  console.log("parts beafore start",parts)
+
   clearScreen();
   drawFood();
   drawWall();
@@ -248,7 +249,7 @@ async function startGame(level){
 }
 
 function run() {
-  console.log("run", parts)
+  
   
 
   moveSnake();
@@ -256,6 +257,7 @@ function run() {
   if (checkOutside() || checkCollisionHimself()) {
 
     MODE = "MENU";
+    console.log("noob")
     setTimeout(drawMenu, 5000);
 
 
