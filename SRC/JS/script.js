@@ -242,17 +242,15 @@ async function startGame(level) {
 function run() {
   moveSnake();
 
-  if (checkOutside() || checkHimselfCollision()) {
+  if (checkOutside() || checkHimselfCollision() || checkWallCollision()) {
     MODE = "MENU";
-    console.log("noob");
+    ctx.fillStyle = "white";
+    ctx.font = "30px Arial";
+    ctx.fillText("NOOB !", canGame.width / 2.75, canGame.height / 2);
     setTimeout(drawMenu, 5000);
   } else {
     clearScreen();
     checkSnakeEat();
-
-    if (checkOutside() || checkHimselfCollision() || checkWallCollision()) {
-      location.reload();
-    }
 
     drawFood();
     drawWall();
