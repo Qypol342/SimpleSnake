@@ -74,7 +74,7 @@ let score = 0;
 let lost = false;
 let MODE = "MENU";
 let LEVEL_SEL = 0;
-const LEVEL_LIST = ["1", "2", "3"];
+const LEVEL_LIST = ["1", "2", "3", "4", "5", "6"];
 let delai = 0;
 
 /**
