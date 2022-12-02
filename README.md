@@ -4,4 +4,4 @@ This project is realised with Javascript, HTML and CSS.
 All of the game motor is realised in javascript
 
 
-<img src="SRC/img.png"
+<img src="SRC/img.png">
